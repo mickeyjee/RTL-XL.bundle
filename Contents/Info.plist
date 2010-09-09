@@ -19,22 +19,8 @@
 	<key>PlexClientPlatforms</key>
 	<string>MacOSX</string>
 	<key>PlexFrameworkVersion</key>
-	<string>1</string>
-	<key>PlexPluginAuthor</key>
-	<string>Sander Spies</string>
-	<key>PlexPluginDebug</key>
-	<string>1</string>
-	<key>PlexPluginLanguage</key>
-	<string>Python25</string>
+	<string>2</string>
 	<key>PlexPluginMode</key>
 	<string>AlwaysOn</string>
-	<key>PlexPluginName</key>
-	<string>RTL Gemist</string>
-	<key>PlexPluginPrefixes</key>
-	<array>
-		<string>/video/RTL Gemist</string>
-	</array>
-	<key>PlexPluginType</key>
-	<string>Framework</string>
 </dict>
 </plist>

@@ -2,14 +2,10 @@
 ###################################################################################################
 #
 # RTL Gemist (www.rtlgemist.nl) plugin for Plex (by sander1)
-# v0.9 (June 29, 2010)
 # http://wiki.plexapp.com/index.php/RTL_Gemist
 #
 ###################################################################################################
 
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
 import re, time
 
 ###################################################################################################
@@ -68,7 +64,7 @@ def Start():
   MediaContainer.userAgent  = ''
 
   # Set HTTP headers
-  HTTP.SetHeader('User-agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.4) Gecko/20100611 Firefox/3.6.4')
+  HTTP.Headers['User-agent'] = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.4) Gecko/20100611 Firefox/3.6.4'
 
 ###################################################################################################
 
@@ -97,9 +93,8 @@ def RTLRecent(sender):
 
 def RTLDay(sender, day):
   dir = MediaContainer(title2=sender.itemTitle, viewGroup='_InfoList')
-  items = XML.ElementFromURL(RTL_GEMIST_IPAD + '?day=' + day, isHTML=True, errors='ignore', cacheTime=600).xpath('/html/body//ul[@class="video_list"]/li')
 
-  for item in items:
+  for item in HTML.ElementFromURL(RTL_GEMIST_IPAD + '?day=' + day, errors='ignore', cacheTime=600).xpath('/html/body//ul[@class="video_list"]/li'):
     title = item.xpath('./a[text()]/text()[1]')[0].strip()
     subtitle = item.xpath('./a/span')[0].text.strip() # <-- date & time
     video_url = item.xpath('./a')[0].get('href')
@@ -130,10 +125,7 @@ def RTLAllPrograms(sender):
 def RTLProgram(sender, url):
   dir = MediaContainer(title2=sender.itemTitle)
 
-  content = HTTP.Request(url, cacheTime=1800)
-  items = XML.ElementFromString(content, isHTML=True).xpath('//ul/li')
-
-  for item in items:
+  for item in HTML.ElementFromURL(url, cacheTime=1800).xpath('//ul/li'):
     title = unicode( item.xpath('./text()')[0].strip() )
 
     if item.get('class') == 'folder':
@@ -165,7 +157,7 @@ def PlayVideo(sender, url, wvx):
   if url[0:4] != 'http':
     url = BASE_URL + url
 
-  content = HTTP.Request(url, cacheTime=CACHE_1DAY)
+  content = HTTP.Request(url, cacheTime=CACHE_1DAY).content
   if content != None:
     vid = re.compile("bandwidth:'(.+?)'.+?width:'(.+?)'.+?height:'(.+?)'", re.DOTALL).findall(content)
 
@@ -218,18 +210,17 @@ def AvailablePrograms():
   for i in range( 0, len(URL_CATEGORIES) ):
     contains.append( XPATH_PROGRAMS_CONTAINS % URL_CATEGORIES[i] )
 
-  content = HTTP.Request(PROGRAM_INDEX, cacheTime=CACHE_1WEEK)
-  programs = XML.ElementFromString(content, isHTML=True).xpath( XPATH_PROGRAMS % ( ' or '.join(contains) ))
-
-  for program in programs:
+  for program in HTML.ElementFromURL(PROGRAM_INDEX, cacheTime=CACHE_1WEEK).xpath( XPATH_PROGRAMS % ( ' or '.join(contains) )):
     path = program.get('href').split('/',5)
     if path[4] not in EXCLUDE_URLS_CONTAINING:
       url = MENU_PATH % ('/' + path[3] + '/' + path[4] + DEFAULT_XML)
 
-      v = HTTP.Request(url, cacheTime=CACHE_1WEEK)
-      if v != None:
+      try:
+        v = HTTP.Request(url, cacheTime=CACHE_1WEEK).content
         title = unicode( program.xpath('./text()')[0].strip() )
         allPrograms.append([title, path[3], path[4]])
+      except:
+        pass
 
   allPrograms.sort()
   return allPrograms
@@ -237,7 +228,7 @@ def AvailablePrograms():
 ####################################################################################################
 
 def GetImageBaseUrl():
-#  content = HTTP.Request(RTL_GEMIST_HOME)
+#  content = HTTP.Request(RTL_GEMIST_HOME).content
 #  baseurl = re.compile('var image_size=\'(.+)\';').search(content).group(1)
 #  return baseurl + '/'
   base = 'http://data.rtl.nl/system/img//' # Temporary(?) The double slash at the end is intentionally
@@ -250,9 +241,11 @@ def GetThumb(url):
     if url[0:4] != 'http':
       url = GetImageBaseUrl() + url
 
-    data = HTTP.Request(url, cacheTime=CACHE_1MONTH)
-    if data:
-      return DataObject(data, 'image/jpeg')
+    try:
+      thumb = HTTP.Request(url, cacheTime=CACHE_1MONTH).content
+      return DataObject(thumb, 'image/jpeg')
+    except:
+      pass
 
   return Redirect(R(PLUGIN_ICON_DEFAULT))
 
@@ -262,7 +255,8 @@ def Is404(url, cacheTime):
   if url[0:4] != 'http':
     url = BASE_URL + url
 
-  check = HTTP.Request(url, cacheTime=cacheTime)
-  if check != None:
+  try:
+    check = HTTP.Request(url, cacheTime=cacheTime).headers
     return False
-  return True
+  except:
+    return True
