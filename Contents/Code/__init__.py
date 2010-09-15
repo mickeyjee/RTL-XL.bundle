@@ -149,6 +149,10 @@ def RTLProgram(sender, url):
           vidDate = time.strftime('%d/%m/%Y', vidDate)
           dir.Append(Function(WebVideoItem(PlayVideo, title=title, infolabel=vidDate, thumb=Function(GetThumb, url=thumb)), url=url, wvx=wvx))
 
+  if len(dir) == 0:
+    dir.header = 'Geen video\'s'
+    dir.message = 'Deze locatie bevat geen video\'s'
+
   return dir
 
 ####################################################################################################
@@ -161,17 +165,22 @@ def PlayVideo(sender, url, wvx):
   if content != None:
     vid = re.compile("bandwidth:'(.+?)'.+?width:'(.+?)'.+?height:'(.+?)'", re.DOTALL).findall(content)
 
-    # If multiple streams are available, get info from the one with the highest bandwidth
+    # If multiple streams are available, check if the user wants high or low bitrate videos and get info for that one
     if len(vid) > 0:
-      highestBandwidth = vid[0][0]
+      bandwidth = vid[0][0]
       index = 0
       for i in range( 1, len(vid) ):
-        if int(vid[i][0]) > int(highestBandwidth):
-          highestBandwidth = vid[i][0]
-          index = i
+        if Prefs['lowbitrate'] == False:
+          if int(vid[i][0]) > int(bandwidth):
+            bandwidth = vid[i][0]
+            index = i
+        else:
+          if int(vid[i][0]) < int(bandwidth):
+            bandwidth = vid[i][0]
+            index = i
 
-      wvx = wvx.replace('max.wvx', highestBandwidth + '.wvx')
-      #Log('wvx --> ' + wvx)
+      wvx = wvx.replace('max.wvx', bandwidth + '.wvx')
+      Log('wvx --> ' + wvx)
 
       # Check if the video has DRM
       # If not: use the Plexapp Silverlight player
