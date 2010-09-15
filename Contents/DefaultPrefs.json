@@ -1,0 +1,8 @@
+[
+  {
+    "id":"lowbitrate",
+    "type":"bool",
+    "label":"Lage bitrate",
+    "default":"false"
+  }
+]
