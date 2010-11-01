@@ -69,15 +69,17 @@ def Start():
 ###################################################################################################
 
 def MainMenu():
-  dir = MediaContainer()
-  dir.Append(Function(DirectoryItem(RTLRecent, title='Recente uitzendingen', thumb=R(PLUGIN_ICON_DEFAULT))))
-  dir.Append(Function(DirectoryItem(RTLAllPrograms, title='Alle RTL Gemist programma\'s', thumb=R(PLUGIN_ICON_DEFAULT))))
+#  dir = MediaContainer()
+#  dir.Append(Function(DirectoryItem(RTLRecent, title='Recente uitzendingen', thumb=R(PLUGIN_ICON_DEFAULT))))
+#  dir.Append(Function(DirectoryItem(RTLAllPrograms, title='Alle RTL Gemist programma\'s', thumb=R(PLUGIN_ICON_DEFAULT))))
+  dir = RTLRecent(None)
   return dir
 
 ###################################################################################################
 
 def RTLRecent(sender):
-  dir = MediaContainer(title2=sender.itemTitle)
+#  dir = MediaContainer(title2=sender.itemTitle)
+  dir = MediaContainer()
 
   dir.Append(Function(DirectoryItem(RTLDay, title='Maandag', thumb=R(PLUGIN_ICON_DEFAULT)), day='1'))
   dir.Append(Function(DirectoryItem(RTLDay, title='Dinsdag', thumb=R(PLUGIN_ICON_DEFAULT)), day='2'))
