@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ###################################################################################################
 #
-# RTL Gemist (www.rtlgemist.nl) plugin for Plex (by sander1)
-# http://wiki.plexapp.com/index.php/RTL_Gemist
+# RTL XL (RTL Gemist) plugin for Plex (by sander1)
+# http://wiki.plexapp.com/index.php/RTL_XL
 #
 ###################################################################################################
 
@@ -10,8 +10,8 @@ import re, time
 
 ###################################################################################################
 
-PLUGIN_TITLE                = 'RTL Gemist'
-PLUGIN_PREFIX               = '/video/rtlgemist'
+PLUGIN_TITLE                = 'RTL XL'
+PLUGIN_PREFIX               = '/video/rtlxl'
 
 BASE_URL                    = 'http://www.rtl.nl'
 RTL_GEMIST_HOME             = '%s/service/gemist/home/' % BASE_URL
@@ -47,7 +47,7 @@ XPATH_PROGRAMS              = '/html/body/div[@id="pos0"]//a[%s]'
 XPATH_PROGRAMS_CONTAINS     = 'contains(@href,"%s")'
 
 # Default artwork and icon(s)
-PLUGIN_ARTWORK              = 'art-default.png'
+PLUGIN_ARTWORK              = 'art-default.jpg'
 PLUGIN_ICON_DEFAULT         = 'icon-default.png'
 
 ###################################################################################################
