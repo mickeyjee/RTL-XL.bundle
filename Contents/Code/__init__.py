@@ -47,7 +47,7 @@ XPATH_PROGRAMS              = '/html/body/div[@id="pos0"]//a[%s]'
 XPATH_PROGRAMS_CONTAINS     = 'contains(@href,"%s")'
 
 # Default artwork and icon(s)
-PLUGIN_ARTWORK              = 'art-default.png'
+PLUGIN_ARTWORK              = 'art-default.jpg'
 PLUGIN_ICON_DEFAULT         = 'icon-default.png'
 
 ###################################################################################################
