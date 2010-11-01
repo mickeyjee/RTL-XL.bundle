@@ -25,6 +25,7 @@
 	<key>PlexMediaContainer</key>
 	<array>
 		<string>MP4</string>
+		<string>Silverlight</string>
 	</array>
 	<key>PlexVideoCodec</key>
 	<array>
