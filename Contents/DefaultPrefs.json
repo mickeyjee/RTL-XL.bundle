@@ -1,8 +1,9 @@
 [
   {
-    "id":"lowbitrate",
-    "type":"bool",
-    "label":"Lage bitrate",
-    "default":"false"
+    "id":"sl_quality",
+    "label":"Kwaliteit van de Silverlight streams",
+    "type":"enum",
+    "values":["High", "Medium"],
+    "default":"High"
   }
 ]
