@@ -252,7 +252,8 @@ def RTLEpisodes(sender, abstract_key, season_key, tablabel):
 ####################################################################################################
 
 def PlayVideo(sender, url):
-  return Redirect(WebVideoItem(url))
+  quality = Prefs['sl_quality']
+  return Redirect(WebVideoItem(url + '#' + quality))
 
 ####################################################################################################
 

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<site site="http://.*\.rtl\.nl"
+<site site="http://.*\.rtl\.nl.*#Medium"
 	plugin="silverlight"
 	initialState="wait-for-frame-load"
 	version="2.0">
 
-	<setCookie domain="www.rtl.nl" path="/" name="quality" secure="false" value="${sl_quality}" />
+	<setCookie domain="www.rtl.nl" path="/" name="quality" secure="false" value="Medium" />
 	<setCookie domain="www.rtl.nl" path="/" name="DefaultVolumeValue" secure="false" value="1" />
 
 	<crop x="0" y="0" width="0" height="0" />
