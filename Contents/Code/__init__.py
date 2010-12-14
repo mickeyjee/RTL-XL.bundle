@@ -20,7 +20,7 @@ PROGRAMMES_AZ = '%s/system/xl/feed/a-z.xml' % (BASE_URL)
 EPISODES      = '%s/system/s4m/xldata/abstract/%%d.xml' % (BASE_URL)
 VIDEO_PAGE    = '%s/xl/u/%%s' % (BASE_URL)
 THUMB_URL     = 'http://data.rtl.nl/system/img//%d.jpg' # Double slash is intentional
-BG_ART_URL    = 'http://rtlxl.img.plugins.plexapp.tv/?image=%s'
+BG_ART_URL    = 'http://www.plexapp.tv/plugins/rtl-xl/?image=%s'
 
 IPAD_UA       = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
 DEFAULT_UA    = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12'
@@ -47,7 +47,7 @@ def Start():
   DirectoryItem.thumb      = R(ICON_DEFAULT)
 
   # Set HTTP headers
-  HTTP.SetCacheTime = CACHE_1HOUR
+  HTTP.CacheTime = CACHE_1HOUR
   HTTP.Headers['User-Agent'] = DEFAULT_UA
 
 ###################################################################################################
