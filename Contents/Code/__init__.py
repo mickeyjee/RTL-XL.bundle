@@ -23,7 +23,7 @@ THUMB_URL     = 'http://data.rtl.nl/system/img//%d.jpg' # Double slash is intent
 BG_ART_URL    = 'http://www.plexapp.tv/plugins/rtl-xl/?image=%s'
 
 IPAD_UA       = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
-DEFAULT_UA    = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12'
+DEFAULT_UA    = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13'
 
 WEEKDAY       = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag']
 MONTH         = ['', 'januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december']
@@ -81,9 +81,8 @@ def RTLDay(sender, day):
   for item in HTML.ElementFromURL(RTL_IPAD + '?day=' + day, errors='ignore', headers={'User-Agent':IPAD_UA}, cacheTime=600).xpath('/html/body//ul[@class="video_list"]/li'):
     title = item.xpath('./a[text()]/text()[1]')[0].strip()
     subtitle = item.xpath('./a/span')[0].text.strip() # <-- date & time
-    video_url = item.xpath('./a')[0].get('href')
-    thumb = video_url.rsplit('/',1)[1].replace('.mp4', '.poster.jpg')
-    thumb = 'http://iptv.rtl.nl/nettv/imagestrip/default.aspx?&width=190&height=106&files=' + thumb
+    video_url = item.xpath('./a')[0].get('href').split('ns_url=',1)[1]
+    thumb = video_url.replace('.mp4', '.poster.jpg')
 
     dir.Append(VideoItem(video_url, title=title, subtitle=subtitle, thumb=Function(GetThumb, url=thumb)))
 
