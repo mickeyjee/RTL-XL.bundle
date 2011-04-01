@@ -101,9 +101,11 @@ def RtlProgramme(sender, abstract_key):
   if use_seasons == False:
     tabs = []
     for tablabel in episodes.xpath('//material_list/material/tablabel'):
-      label = tablabel.text.encode('iso-8859-1').decode('utf-8')
-      if label not in tabs:
-        tabs.append(label)
+      label = tablabel.text
+      if label:
+        label = label.encode('iso-8859-1').decode('utf-8')
+        if label not in tabs:
+          tabs.append(label)
     tabs.sort() # Order alphabetically
     for label in tabs:
       dir.Append(Function(DirectoryItem(RtlEpisodes, title=label.title()), abstract_key=abstract_key, season_key=None, tablabel=label))
