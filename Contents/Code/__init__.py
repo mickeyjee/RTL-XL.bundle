@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-###################################################################################################
-#
-# RTL XL (RTL Gemist) plugin for Plex (by sander1)
-# http://wiki.plexapp.com/index.php/RTL_XL
-#
-###################################################################################################
-
 import re, time
 from string import ascii_uppercase
 
@@ -15,15 +8,10 @@ TITLE         = 'RTL XL'
 PREFIX        = '/video/rtlxl'
 
 BASE_URL      = 'http://www.rtl.nl'
-RTL_IPAD      = '%s/service/gemist/device/ipad/feed/index.xml' % (BASE_URL) # iPad/iptv website used for recent programmes (past 7 days)
 PROGRAMMES_AZ = '%s/system/xl/feed/a-z.xml' % (BASE_URL)
 EPISODES      = '%s/system/s4m/xldata/abstract/%%d.xml' % (BASE_URL)
 VIDEO_PAGE    = '%s/xl/u/%%s' % (BASE_URL)
 THUMB_URL     = 'http://data.rtl.nl/system/img//%d.jpg' # Double slash is intentional
-BG_ART_URL    = 'http://www.plexapp.tv/plugins/rtl-xl/?image=%s'
-
-IPAD_UA       = 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10'
-DEFAULT_UA    = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13'
 
 WEEKDAY       = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag']
 MONTH         = ['', 'januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december']
@@ -43,72 +31,36 @@ def Start():
   MediaContainer.title1    = TITLE
   MediaContainer.viewGroup = 'List'
   MediaContainer.art       = R(ART_DEFAULT)
-  MediaContainer.userAgent = IPAD_UA
   DirectoryItem.thumb      = R(ICON_DEFAULT)
 
   # Set HTTP headers
   HTTP.CacheTime = CACHE_1HOUR
-  HTTP.Headers['User-Agent'] = DEFAULT_UA
+  HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16'
 
 ###################################################################################################
 
 def MainMenu():
   dir = MediaContainer()
-  dir.Append(Function(DirectoryItem(RTLRecent, title='Recente uitzendingen', thumb=R(ICON_DEFAULT))))
-  dir.Append(Function(DirectoryItem(RTLAllProgrammes, title='Alle RTL programma\'s', thumb=R(ICON_DEFAULT))))
+  dir.Append(Function(DirectoryItem(RtlAllProgrammes, title='Alle RTL programma\'s')))
   return dir
 
 ###################################################################################################
 
-def RTLRecent(sender):
-  dir = MediaContainer(title2=sender.itemTitle)
-
-  dir.Append(Function(DirectoryItem(RTLDay, title='Maandag', thumb=R(ICON_DEFAULT)), day='1'))
-  dir.Append(Function(DirectoryItem(RTLDay, title='Dinsdag', thumb=R(ICON_DEFAULT)), day='2'))
-  dir.Append(Function(DirectoryItem(RTLDay, title='Woensdag', thumb=R(ICON_DEFAULT)), day='3'))
-  dir.Append(Function(DirectoryItem(RTLDay, title='Donderdag', thumb=R(ICON_DEFAULT)), day='4'))
-  dir.Append(Function(DirectoryItem(RTLDay, title='Vrijdag', thumb=R(ICON_DEFAULT)), day='5'))
-  dir.Append(Function(DirectoryItem(RTLDay, title='Zaterdag', thumb=R(ICON_DEFAULT)), day='6'))
-  dir.Append(Function(DirectoryItem(RTLDay, title='Zondag', thumb=R(ICON_DEFAULT)), day='7'))
-
-  return dir
-
-###################################################################################################
-
-def RTLDay(sender, day):
-  dir = MediaContainer(title2=sender.itemTitle, viewGroup='InfoList')
-
-  for item in HTML.ElementFromURL(RTL_IPAD + '?day=' + day, errors='ignore', headers={'User-Agent':IPAD_UA}, cacheTime=600).xpath('/html/body//ul[@class="video_list"]/li'):
-    title = item.xpath('./a[text()]/text()[1]')[0].strip()
-    subtitle = item.xpath('./a/span')[0].text.strip() # <-- date & time
-    video_url = item.xpath('./a')[0].get('href').split('ns_url=',1)[1]
-    thumb = video_url.replace('.mp4', '.poster.jpg')
-
-    dir.Append(VideoItem(video_url, title=title, subtitle=subtitle, thumb=Function(GetThumb, url=thumb)))
-
-  if len(dir) == 0:
-    dir.header = 'Geen programma\'s'
-    dir.message = 'Er staan nog geen programma\'s online voor deze dag.'
-
-  return dir
-
-###################################################################################################
-
-def RTLAllProgrammes(sender):
+def RtlAllProgrammes(sender):
   dir = MediaContainer(title2=sender.itemTitle)
 
   # 0-9
-  dir.Append(Function(DirectoryItem(RTLProgrammesByLetter, title='0-9')))
+  dir.Append(Function(DirectoryItem(RtlProgrammesByLetter, title='0-9')))
 
   # A to Z
   for char in list(ascii_uppercase):
-    dir.Append(Function(DirectoryItem(RTLProgrammesByLetter, title=char), char=char))
+    dir.Append(Function(DirectoryItem(RtlProgrammesByLetter, title=char), char=char))
 
   return dir
 
 ####################################################################################################
 
-def RTLProgrammesByLetter(sender, char=None):
+def RtlProgrammesByLetter(sender, char=None):
   dir = MediaContainer(title2=sender.itemTitle)
 
   if char in list(ascii_uppercase):
@@ -123,7 +75,7 @@ def RTLProgrammesByLetter(sender, char=None):
     abstract_key = int( programme.get('key') )
     title = programme.xpath('./name')[0].text.encode('iso-8859-1').decode('utf-8')
 
-    dir.Append(Function(DirectoryItem(RTLProgramme, title=title, thumb=R(ICON_DEFAULT), art=Function(GetArt, abstract_key=abstract_key)), abstract_key=abstract_key))
+    dir.Append(Function(DirectoryItem(RtlProgramme, title=title), abstract_key=abstract_key))
 
   if len(dir) == 0:
     dir.header = 'Geen programma\'s'
@@ -133,8 +85,8 @@ def RTLProgrammesByLetter(sender, char=None):
 
 ####################################################################################################
 
-def RTLProgramme(sender, abstract_key):
-  dir = MediaContainer(title2=sender.itemTitle, art=str(Function(GetArt, abstract_key=abstract_key)))
+def RtlProgramme(sender, abstract_key):
+  dir = MediaContainer(title2=sender.itemTitle)
 
   episodes = XML.ElementFromURL(EPISODES % (abstract_key), errors='ignore')
   use_seasons = True
@@ -154,7 +106,7 @@ def RTLProgramme(sender, abstract_key):
         tabs.append(label)
     tabs.sort() # Order alphabetically
     for label in tabs:
-      dir.Append(Function(DirectoryItem(RTLEpisodes, title=label.title(), thumb=R(ICON_DEFAULT)), abstract_key=abstract_key, season_key=None, tablabel=label))
+      dir.Append(Function(DirectoryItem(RtlEpisodes, title=label.title()), abstract_key=abstract_key, season_key=None, tablabel=label))
 
   else:
     seasons = []
@@ -169,7 +121,7 @@ def RTLProgramme(sender, abstract_key):
     seasons.reverse()
 
     for item_number, title, season_key in seasons:
-      dir.Append(Function(DirectoryItem(RTLEpisodes, title=title, thumb=R(ICON_DEFAULT)), abstract_key=abstract_key, season_key=season_key, tablabel=None))
+      dir.Append(Function(DirectoryItem(RtlEpisodes, title=title), abstract_key=abstract_key, season_key=season_key, tablabel=None))
 
   if len(dir) == 0:
     dir.header = 'Geen afleveringen'
@@ -179,8 +131,8 @@ def RTLProgramme(sender, abstract_key):
 
 ####################################################################################################
 
-def RTLEpisodes(sender, abstract_key, season_key, tablabel):
-  dir = MediaContainer(title2=sender.itemTitle, viewGroup='InfoList', art=str(Function(GetArt, abstract_key=abstract_key)))
+def RtlEpisodes(sender, abstract_key, season_key, tablabel):
+  dir = MediaContainer(title2=sender.itemTitle, viewGroup='InfoList')
   episodes = XML.ElementFromURL(EPISODES % (abstract_key), errors='ignore')
   eps = []
 
@@ -265,18 +217,3 @@ def GetThumb(url):
       pass
 
   return Redirect(R(ICON_DEFAULT))
-
-####################################################################################################
-
-def GetArt(abstract_key):
-  episodes = XML.ElementFromURL(EPISODES % (abstract_key), errors='ignore')
-  try:
-    css = episodes.xpath('//configurations/config/css')[0].text
-    background = re.search('background-image:url\((.+?)\)', css).group(1)
-    url = String.Quote(BASE_URL + background, usePlus=False)
-    image = HTTP.Request(BG_ART_URL % (url), cacheTime=CACHE_1MONTH).content
-    return DataObject(image, 'image/jpeg')
-  except:
-    pass
-
-  return Redirect(R(ART_DEFAULT))
