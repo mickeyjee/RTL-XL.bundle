@@ -35,7 +35,7 @@ def Start():
 
   # Set HTTP headers
   HTTP.CacheTime = CACHE_1HOUR
-  HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16'
+  HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0'
 
 ###################################################################################################
 
@@ -205,8 +205,7 @@ def RtlEpisodes(sender, abstract_key, season_key, tablabel):
 ####################################################################################################
 
 def PlayVideo(sender, url):
-  quality = Prefs['sl_quality']
-  return Redirect(WebVideoItem(url + '#' + quality))
+  return Redirect(WebVideoItem(url))
 
 ####################################################################################################
 
