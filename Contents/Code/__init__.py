@@ -3,50 +3,49 @@ import re, time
 from string import ascii_uppercase
 
 ###################################################################################################
+TITLE = 'RTL XL'
 
-TITLE         = 'RTL XL'
-PREFIX        = '/video/rtlxl'
-
-BASE_URL      = 'http://www.rtl.nl'
+BASE_URL = 'http://www.rtl.nl'
 PROGRAMMES_AZ = '%s/system/xl/feed/a-z.xml' % (BASE_URL)
-EPISODES      = '%s/system/s4m/xldata/abstract/%%d.xml' % (BASE_URL)
-VIDEO_PAGE    = '%s/xl/u/%%s' % (BASE_URL)
-THUMB_URL     = 'http://data.rtl.nl/system/img//%d.jpg' # Double slash is intentional
+EPISODES = '%s/system/s4m/xldata/abstract/%%d.xml' % (BASE_URL)
+VIDEO_PAGE = '%s/xl/#/u/%%s' % (BASE_URL)
+THUMB_URL = 'http://data.rtl.nl/system/img//%d.jpg' # Double slash is intentional
 
-WEEKDAY       = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag']
-MONTH         = ['', 'januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december']
+WEEKDAY = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag']
+MONTH = ['', 'januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december']
 
 # Default artwork and icon(s)
-ART_DEFAULT   = 'art-default.jpg'
-ICON_DEFAULT  = 'icon-default.png'
+ART = 'art-default.jpg'
+ICON = 'icon-default.png'
 
 ###################################################################################################
-
 def Start():
-  Plugin.AddPrefixHandler(PREFIX, MainMenu, TITLE, ICON_DEFAULT, ART_DEFAULT)
+
+  Plugin.AddPrefixHandler('/video/rtlxl', MainMenu, TITLE, ICON, ART)
   Plugin.AddViewGroup('List', viewMode='List', mediaType='items')
   Plugin.AddViewGroup('InfoList', viewMode='InfoList', mediaType='items')
 
   # Set the default MediaContainer attributes
-  MediaContainer.title1    = TITLE
+  MediaContainer.title1 = TITLE
   MediaContainer.viewGroup = 'List'
-  MediaContainer.art       = R(ART_DEFAULT)
-  DirectoryItem.thumb      = R(ICON_DEFAULT)
+  MediaContainer.art = R(ART)
+  DirectoryItem.thumb = R(ICON)
 
   # Set HTTP headers
   HTTP.CacheTime = CACHE_1HOUR
   HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0'
 
 ###################################################################################################
-
 def MainMenu():
+
   dir = MediaContainer()
   dir.Append(Function(DirectoryItem(RtlAllProgrammes, title='Alle RTL programma\'s')))
+
   return dir
 
 ###################################################################################################
-
 def RtlAllProgrammes(sender):
+
   dir = MediaContainer(title2=sender.itemTitle)
 
   # 0-9
@@ -59,8 +58,8 @@ def RtlAllProgrammes(sender):
   return dir
 
 ####################################################################################################
-
 def RtlProgrammesByLetter(sender, char=None):
+
   dir = MediaContainer(title2=sender.itemTitle)
 
   if char in list(ascii_uppercase):
@@ -84,8 +83,8 @@ def RtlProgrammesByLetter(sender, char=None):
   return dir
 
 ####################################################################################################
-
 def RtlProgramme(sender, abstract_key):
+
   dir = MediaContainer(title2=sender.itemTitle)
 
   episodes = XML.ElementFromURL(EPISODES % (abstract_key), errors='ignore')
@@ -132,8 +131,8 @@ def RtlProgramme(sender, abstract_key):
   return dir
 
 ####################################################################################################
-
 def RtlEpisodes(sender, abstract_key, season_key, tablabel):
+
   dir = MediaContainer(title2=sender.itemTitle, viewGroup='InfoList')
   episodes = XML.ElementFromURL(EPISODES % (abstract_key), errors='ignore')
   eps = []
@@ -193,7 +192,7 @@ def RtlEpisodes(sender, abstract_key, season_key, tablabel):
   eps.sort()
   eps.reverse()
   for episode in eps:
-    date_sort, title, summary, date, infolabel, thumb_url, video_url = episode
+    (date_sort, title, summary, date, infolabel, thumb_url, video_url) = episode
     dir.Append(Function(WebVideoItem(PlayVideo, title=title, subtitle=date, infolabel=infolabel, summary=summary, thumb=Function(GetThumb, url=thumb_url)), url=video_url))
 
   if len(dir) == 0:
@@ -203,13 +202,14 @@ def RtlEpisodes(sender, abstract_key, season_key, tablabel):
   return dir
 
 ####################################################################################################
-
 def PlayVideo(sender, url):
+
+  Log(' --> URL: %s' % url)
   return Redirect(WebVideoItem(url))
 
 ####################################################################################################
-
 def GetThumb(url):
+
   if url != None:
     try:
       image = HTTP.Request(url, cacheTime=CACHE_1MONTH).content
@@ -217,4 +217,4 @@ def GetThumb(url):
     except:
       pass
 
-  return Redirect(R(ICON_DEFAULT))
+  return Redirect(R(ICON))
