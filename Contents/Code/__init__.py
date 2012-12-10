@@ -65,6 +65,7 @@ def Episodes(serieskey, title):
 
 	@parallelize
 	def GetEpisodes():
+
 		try:
 			episodes = XML.ElementFromURL(FEED_URL % serieskey).xpath('//item/classname[text()="uitzending"]/../contentid/text()')[:25]
 		except:
@@ -75,6 +76,7 @@ def Episodes(serieskey, title):
 
 			@task
 			def GetEpisode(num=num, result=result, episode=episode):
+
 				try:
 					result[num] = URLService.MetadataObjectForURL(XL_URL % episode)
 				except:
