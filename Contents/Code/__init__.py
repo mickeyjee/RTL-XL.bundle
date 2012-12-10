@@ -61,15 +61,30 @@ def Series(letter):
 def Episodes(serieskey, title):
 
 	oc = ObjectContainer(title2=title, view_group='InfoList')
-	episodes = XML.ElementFromURL(FEED_URL % serieskey).xpath('//item/classname[text()="uitzending"]/../contentid/text()')
+	result = {}
 
-	for e in episodes:
+	@parallelize
+	def GetEpisodes():
 		try:
-			video = URLService.MetadataObjectForURL(XL_URL % e)
-			oc.add(video)
+			episodes = XML.ElementFromURL(FEED_URL % serieskey).xpath('//item/classname[text()="uitzending"]/../contentid/text()')[:25]
 		except:
-			pass
+			episodes = []
+
+		for num in range(len(episodes)):
+			episode = episodes[num]
+
+			@task
+			def GetEpisode(num=num, result=result, episode=episode):
+				try:
+					result[num] = URLService.MetadataObjectForURL(XL_URL % episode)
+				except:
+					pass
+
+	if len(result) < 1:
+		return ObjectContainer(header='Geen afleveringen', message='Deze serie bevat geen afleveringen')
+
+	for key in result:
+		oc.add(result[key])
 
 	oc.objects.sort(key=lambda obj: obj.originally_available_at, reverse=True)
-	#oc.objects.reverse()
 	return oc
