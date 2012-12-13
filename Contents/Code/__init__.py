@@ -67,7 +67,7 @@ def Episodes(serieskey, title):
 	def GetEpisodes():
 
 		try:
-			episodes = XML.ElementFromURL(FEED_URL % serieskey).xpath('//item/classname[text()="uitzending"]/../contentid/text()')[:25]
+			episodes = XML.ElementFromURL(FEED_URL % serieskey).xpath('//item/classname[text()="uitzending"]/../contentid/text()')[:15]
 		except:
 			episodes = []
 
