@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 TITLE = 'RTL XL'
-ART = 'art-default.jpg'
-ICON = 'icon-default.png'
 XL_URL = 'http://www.rtl.nl/xl/#/u/%s'
 FEED_URL = '/s%=ka/evitpada=tmf/dapi=d/dfdapi/m4s/metsys/ln.ltr.www//:ptth'[::-1]
 
@@ -10,16 +8,12 @@ def Start():
 
 	Plugin.AddViewGroup('List', viewMode='List', mediaType='items')
 	Plugin.AddViewGroup('InfoList', viewMode='InfoList', mediaType='items')
-
-	ObjectContainer.art = R(ART)
 	ObjectContainer.title1 = TITLE
-	DirectoryObject.thumb = R(ICON)
-
 	HTTP.CacheTime = CACHE_1HOUR
-	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (iPad; CPU OS 6_0_1 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A523 Safari/8536.25'
+	HTTP.Headers['User-Agent'] = 'RTL%20XL/2.1 CFNetwork/609.1.4 Darwin/13.0.0'
 
 ###################################################################################################
-@handler('/video/rtlxl', TITLE, thumb=ICON, art=ART)
+@handler('/video/rtlxl', TITLE)
 def MainMenu():
 
 	oc = ObjectContainer(view_group='List')
@@ -50,7 +44,7 @@ def Series(letter):
 		oc.add(DirectoryObject(
 			key = Callback(Episodes, serieskey=serieskey, title=title),
 			title = title,
-			thumb = Resource.ContentsOfURLWithFallback(thumb, fallback='icon-default.png')
+			thumb = Resource.ContentsOfURLWithFallback(thumb)
 		))
 
 	oc.objects.sort(key=lambda obj: obj.title)
@@ -61,32 +55,30 @@ def Series(letter):
 def Episodes(serieskey, title):
 
 	oc = ObjectContainer(title2=title, view_group='InfoList')
-	result = {}
+	video = {}
 
-	@parallelize
-	def GetEpisodes():
+	for item in XML.ElementFromURL(FEED_URL % serieskey).xpath('//item/classname[text()="uitzending"]/parent::item'):
+		url = XL_URL % item.xpath('./contentid/text()')[0]
+		title = item.xpath('./title/text()')[0]
+		summary = item.xpath('./samenvattinglang/text()')[0].split(' Voor meer nieuws')[0]
+		summary = item.xpath('./samenvattingkort/text()')[0].split(' Voor meer nieuws')[0] if summary == "" else summary
+		thumb = item.xpath('./thumbnail/text()')[0]
+		date = item.xpath('./broadcastdatetime/text()')[0]
+		date = Datetime.ParseDate(date)
+		timestamp = Datetime.TimestampFromDatetime(date)
 
-		try:
-			episodes = XML.ElementFromURL(FEED_URL % serieskey).xpath('//item/classname[text()="uitzending"]/../contentid/text()')[-15:]
-		except:
-			episodes = []
+		video[timestamp] = {'url': url, 'title': title, 'summary': summary, 'thumb': thumb, 'date': date}
 
-		for num in range(len(episodes)):
-			episode = episodes[num]
+	for key in sorted(video.iterkeys(), reverse=True):
+		oc.add(VideoClipObject(
+			url = video[key]['url'],
+			title = video[key]['title'],
+			summary = video[key]['summary'],
+			thumb = Resource.ContentsOfURLWithFallback(video[key]['thumb']),
+			originally_available_at = video[key]['date']
+		))
 
-			@task
-			def GetEpisode(num=num, result=result, episode=episode):
-
-				try:
-					result[num] = URLService.MetadataObjectForURL(XL_URL % episode)
-				except:
-					pass
-
-	if len(result) < 1:
+	if len(oc) < 1:
 		return ObjectContainer(header='Geen afleveringen', message='Deze serie bevat geen afleveringen')
 
-	for key in result:
-		oc.add(result[key])
-
-	oc.objects.sort(key=lambda obj: obj.originally_available_at, reverse=True)
 	return oc
