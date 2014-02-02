@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 TITLE = 'RTL XL'
-XL_URL = 'http://www.rtl.nl/xl/#/u/%s'
+XL_URL = 'http://www.rtlxl.nl/#!/u/%s'
 FEED_URL = '/s%=ka/evitpada=tmf/dapi=d/dfdapi/m4s/metsys/ln.ltr.www//:ptth'[::-1]
 
 ###################################################################################################
