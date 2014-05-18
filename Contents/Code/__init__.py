@@ -6,8 +6,6 @@ FEED_URL = '/s%=ka/evitpada=tmf/dapi=d/dfdapi/m4s/metsys/ln.ltr.www//:ptth'[::-1
 ###################################################################################################
 def Start():
 
-	Plugin.AddViewGroup('List', viewMode='List', mediaType='items')
-	Plugin.AddViewGroup('InfoList', viewMode='InfoList', mediaType='items')
 	ObjectContainer.title1 = TITLE
 	HTTP.CacheTime = CACHE_1HOUR
 	HTTP.Headers['User-Agent'] = 'RTL%20XL/2.1 CFNetwork/609.1.4 Darwin/13.0.0'
@@ -16,7 +14,13 @@ def Start():
 @handler('/video/rtlxl', TITLE)
 def MainMenu():
 
-	oc = ObjectContainer(view_group='List')
+	oc = ObjectContainer()
+
+	if not Client.Platform in ('Android', 'iOS', 'Roku') and not (Client.Platform == 'Safari' and Platform.OS == 'MacOSX'):
+		oc.header = 'Not supported'
+		oc.message = 'This channel is not supported on %s' % (Client.Platform if Client.Platform is not None else 'this client')
+		return oc
+
 	series = XML.ElementFromURL(FEED_URL.rsplit('/ak')[0]).xpath('//serienaam/text()')
 	letters = list(set([s.strip()[0].upper() for s in series]))
 	letters.sort()
@@ -33,7 +37,7 @@ def MainMenu():
 @route('/video/rtlxl/series/{letter}')
 def Series(letter):
 
-	oc = ObjectContainer(title2=letter, view_group='List')
+	oc = ObjectContainer(title2=letter)
 	series = XML.ElementFromURL(FEED_URL.rsplit('/ak')[0]).xpath('//serienaam/text()[starts-with(., "%s") or starts-with(., "%s")]/../..' % (letter, letter.lower()))
 
 	for s in series:
@@ -54,7 +58,7 @@ def Series(letter):
 @route('/video/rtlxl/episodes/{serieskey}')
 def Episodes(serieskey, title):
 
-	oc = ObjectContainer(title2=title, view_group='InfoList')
+	oc = ObjectContainer(title2=title)
 	video = {}
 
 	for item in XML.ElementFromURL(FEED_URL % serieskey).xpath('//item/classname[text()="uitzending"]/parent::item'):
