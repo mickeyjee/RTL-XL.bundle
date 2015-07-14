@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 TITLE = 'RTL XL'
 XL_URL = 'http://www.rtlxl.nl/#!/u/%s'
-FEED_URL = '/s%=ka/evitpada=tmf/dapi=d/dfdapi/m4s/metsys/ln.ltr.www//:ptth'[::-1]
+FEED_URL = 'http://www.rtl.nl/system/s4m/ipadfd/d=a2t/fmt=progressive/ak=%s/'
 
 ###################################################################################################
 def Start():
@@ -15,11 +15,6 @@ def Start():
 def MainMenu():
 
 	oc = ObjectContainer()
-
-	if not Client.Platform in ('Android', 'iOS', 'Roku') and not (Client.Platform == 'Safari' and Platform.OS == 'MacOSX'):
-		oc.header = 'Not supported'
-		oc.message = 'This channel is not supported on %s' % (Client.Platform if Client.Platform is not None else 'this client')
-		return oc
 
 	series = XML.ElementFromURL(FEED_URL.rsplit('/ak')[0]).xpath('//serienaam/text()')
 	letters = list(set([s.strip()[0].upper() for s in series]))
