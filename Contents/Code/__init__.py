@@ -57,7 +57,7 @@ def Episodes(serieskey, title):
 	video = {}
 
 	for item in XML.ElementFromURL(FEED_URL % serieskey).xpath('//item/classname[text()="uitzending"]/parent::item'):
-		url = XL_URL % item.xpath('./contentid/text()')[0]
+		url = XL_URL % item.xpath('./id/text()')[0]
 		title = item.xpath('./title/text()')[0]
 		summary = item.xpath('./samenvattinglang/text()')[0].split(' Voor meer nieuws')[0]
 		summary = item.xpath('./samenvattingkort/text()')[0].split(' Voor meer nieuws')[0] if summary == "" else summary
