@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 TITLE = 'RTL XL'
+ART = 'art-default.jpg'
+ICON = 'icon-default.jpg'
 XL_URL = 'http://www.rtlxl.nl/#!/u/%s'
 FEED_URL = 'http://www.rtl.nl/system/s4m/ipadfd/d=a2t/fmt=progressive/ak=%s/'
 
@@ -11,7 +13,7 @@ def Start():
 	HTTP.Headers['User-Agent'] = 'RTL%20XL/2.1 CFNetwork/609.1.4 Darwin/13.0.0'
 
 ###################################################################################################
-@handler('/video/rtlxl', TITLE)
+@handler('/video/rtlxl', TITLE, art=ART, thumb=ICON)
 def MainMenu():
 
 	oc = ObjectContainer()
